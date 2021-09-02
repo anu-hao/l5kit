@@ -16,17 +16,20 @@ class L5KitEvalCallback(EvalCallback):
     :param n_eval_episodes: The number of episodes to test the agent
     :param eval_freq: Evaluate the agent every ``eval_freq`` call of the callback.
     :param metric_set: computes a set of metric parametrization for the L5Kit environment
+    :param prefix: the prefix to save the computed metrics
     :param verbose:
     """
 
     def __init__(self, eval_env: gym.Env, eval_freq: int = 10000, n_eval_episodes: int = 10,
-                 n_eval_envs: int = 4, metric_set: Optional[L5MetricSet] = None, verbose: int = 0) -> None:
+                 n_eval_envs: int = 4, metric_set: Optional[L5MetricSet] = None,
+                 prefix: str = 'eval', verbose: int = 0) -> None:
         super(L5KitEvalCallback, self).__init__(eval_env)
         self.eval_freq = eval_freq
         self.n_eval_episodes = n_eval_episodes
         self.n_eval_envs = n_eval_envs
         self.verbose = verbose
         self.metric_set = metric_set or CLEMetricSet()
+        self.prefix = prefix
 
     def _init_callback(self) -> None:
         pass
@@ -43,7 +46,7 @@ class L5KitEvalCallback(EvalCallback):
             # Add to current Logger
             assert self.logger is not None
             for k, v in agg.items():
-                self.logger.record(f'eval/{k}', v.item())
+                self.logger.record(f'{self.prefix}/{k}', v.item())
 
             # Dump log so the evaluation results are printed with the correct timestep
             self.logger.record("time/total timesteps", self.num_timesteps, exclude="tensorboard")
